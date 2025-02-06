@@ -52,12 +52,15 @@ app.use((req, res, next) => {
 });
 
 // MongoDB connection (use process.env for production)
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
+mongoose.connect('mongodb+srv://ankit3001yadav:OR1twGenGm59HEbo@daily-earn.ju6ec.mongodb.net/', {
+    ssl: true,  // Enable SSL
+    useNewUrlParser: true,  // Optional: keep for compatibility
+    useUnifiedTopology: true // Optional: good to keep for compatibility
+}).then(() => {
+    console.log('MongoDB connected successfully!');
+}).catch(err => {
+    console.error('MongoDB connection error:', err);
+});
 
 // Register routes
 app.use('/api/tasks', taskRoutes);

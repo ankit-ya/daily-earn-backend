@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const http = require('http');
 const socketIo = require('socket.io');
+const cors = require('cors');
 
 const taskRoutes = require('./routes/taskRoutes');
 const authRoutes = require('./routes/auth');
@@ -15,17 +16,24 @@ const adminRoutes = require('./routes/adminRoutes');
 const adminAuth = require('./routes/adminAuth');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const withdrawals = require('./routes/withdrawals');
+
 const app = express();
-const cors = require('cors');
-app.use(cors());
+
+// ✅ Enable CORS for the frontend domain only
+app.use(cors({
+    origin: "https://daily-earn-s7mh.vercel.app",
+    credentials: true,
+}));
+
 app.use(express.json());
 
 // Create HTTP server and attach Socket.IO
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "*",
+        origin: "https://daily-earn-s7mh.vercel.app",
         methods: ["GET", "POST"],
+        credentials: true,
     },
 });
 
@@ -44,7 +52,7 @@ app.use((req, res, next) => {
 });
 
 // MongoDB connection (use process.env for production)
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/daily-earn', {
+mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -55,14 +63,13 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/daily-ear
 app.use('/api/tasks', taskRoutes);
 app.use('/api', authRoutes);
 app.use('/api', earningsRoutes);
-
 app.use('/api', convertRoutes);
 app.use('/api', leaderboardRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', adminRoutes);
 app.use('/api/admin', adminAuth);
 app.use('/api/feedback', feedbackRoutes);
-app.use('/api/withdrawals',withdrawals);
+app.use('/api/withdrawals', withdrawals);
 
 // Simple route
 app.get('/', (req, res) => {
